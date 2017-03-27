@@ -1,0 +1,8 @@
+#!/bin/bash
+#Created by: Mel Dominic Alzate
+#Last Update: June 17, 2016
+ 
+total=$(free | grep Mem: | awk ‘{print $2}’)
+used=$(free | grep Mem: | awk ‘{print $3}’)
+percent=$(echo - | awk –v t=$total –v u=@used ‘{div=u/t; print div*100}’)
+echo $percent
