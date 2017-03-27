@@ -1,0 +1,43 @@
+#!/bin/bash
+#Created by: Mel Dominic Alzate
+#Last Update:
+
+
+total=$(free | grep Mem: | awk '{print $2}')
+used=$(free | grep Mem: | awk '{print $3}')
+decimal=$(echo - | awk -v t=$total -v u=$used '{div=u/t; print div*100}')
+percent=$(echo ${decimal%\.*})
+
+usage() { echo "Usage: $0 [-e [email]] [-c [critical threshold]] [-w [warning threshold]] [critical>warning]" 1>&2; exit 99;}
+
+while getopts ":e:c:w:" opt; do
+case "$opt" in
+e) email=$OPTARG
+;;
+c) critical=$OPTARG
+;;
+w) warning=$OPTARG
+;;
+*) usage
+;;
+esac
+done
+shift $((OPTIND-1))
+
+if [ $critical -le $warning ]; then
+usage
+fi
+
+echo "critical threshold is $critical"
+echo "warning threshold is $warning"
+echo "used memory is $percent"
+
+if [ $critical -le $percent ]
+then
+echo "CRITICAL!!! Used memory has breached the critical threshold"; exit 2
+elif [ $warning -le $percent ]
+then
+echo "Warning!! Used memory has breached the warning threshold"; exit 1
+else
+echo "Good! Used memory has not breached any threshold"; exit 0
+fi
